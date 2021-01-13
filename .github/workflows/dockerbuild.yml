@@ -1,12 +1,17 @@
-name: Super-Linter
+name: build-and-push-azure-vote-to-acr
 
 # Run this workflow every time a new commit pushed to your repository
-on: push
+on: 
+  push:
+    branches:
+      - master
+    paths:
+      - azure-vote/**
 
 jobs:
   # Set the job key. The key is displayed as the job name
   # when a job name is not provided
-  super-lint:
+  build-docker:
     # Name the Job
     name: Lint code base
     # Set the type of machine to run on
