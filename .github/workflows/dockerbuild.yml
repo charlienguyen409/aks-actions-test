@@ -4,7 +4,7 @@ name: build-and-push-azure-vote-to-acr
 on: 
   push:
     branches:
-      - master
+      - main
     paths:
       - /azure-vote/**
 
