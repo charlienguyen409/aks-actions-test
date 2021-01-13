@@ -6,7 +6,7 @@ on:
     branches:
       - master
     paths:
-      - azure-vote/**
+      - /azure-vote/**
 
 jobs:
   # Set the job key. The key is displayed as the job name
