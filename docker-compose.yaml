@@ -10,7 +10,7 @@ services:
 
   azure-vote-front:
     build: ./azure-vote
-    image: cnacr.azurecr.io/azure-vote-aks-test:423089553bbfe9700455d6da213ddb2908b2d63e
+    image: cnacr.azurecr.io/azure-vote-aks-test:latest
     container_name: azure-vote-front
     environment:
       REDIS: azure-vote-back
