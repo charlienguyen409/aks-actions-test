@@ -1,4 +1,4 @@
-name: build-and-push-azure-vote-to-acr
+name: build-and-push-azure-vote-to-acr2
 
 # Run this workflow every time a new commit pushed to your repository
 on: 
