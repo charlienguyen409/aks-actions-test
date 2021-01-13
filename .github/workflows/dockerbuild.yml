@@ -7,6 +7,12 @@ on:
       - main
     paths:
       - azure-vote/**
+env:
+  CLUSTER_NAME: github-action-test-cluster
+  CLUSTER_RESOURCE_GROUP: aks-cluster-cn-rg
+  NAMESPACE: aks-test-namespace
+  SECRET: aks-test-secret
+  APP_NAME: azure-vote-aks-test
 
 jobs:
   # Set the job key. The key is displayed as the job name
@@ -31,6 +37,41 @@ jobs:
 
       - 
         run: |
-          docker build ./azure-vote -t ${{ secrets.acr_server }}/azure-vote-aks-test:${{ github.sha }}
-          docker push ${{ secrets.acr_server }}/azure-vote-aks-test:${{ github.sha }}
+          docker build ./azure-vote -t ${{ secrets.acr_server }}/${{ env.APP_NAME }}:${{ github.sha }}
+          docker push ${{ secrets.acr_server }}/${{ env.APP_NAME }}:${{ github.sha }}
       
+      # Set the target Azure Kubernetes Service (AKS) cluster. 
+      - 
+        uses: azure/aks-set-context@v1
+        with:
+          creds: '${{ secrets.AZURE_CREDENTIALS }}'
+          cluster-name: ${{ env.CLUSTER_NAME }}
+          resource-group: ${{ env.CLUSTER_RESOURCE_GROUP }}
+      
+      # Create namespace if doesn't exist
+      - 
+        run: |
+          kubectl create namespace ${{ env.NAMESPACE }} --dry-run -o json | kubectl apply -f -
+      
+      # Create image pull secret for ACR
+      - 
+        uses: azure/k8s-create-secret@v1
+        with:
+          container-registry-url: ${{ secrets.acr_server }}
+          container-registry-username: ${{ secrets.acr_username }}
+          container-registry-password: ${{ secrets.acr_password }}
+          secret-name: ${{ env.SECRET }}
+          namespace: ${{ env.NAMESPACE }}
+          force: true
+      
+      # Deploy app to AKS
+      - 
+        uses: azure/k8s-deploy@v1
+        with:
+          manifests: |
+            azure-vote-all-in-one-redis.yml
+          images: |
+            ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.APP_NAME }}:${{ github.sha }}
+          imagepullsecrets: |
+            ${{ env.SECRET }}
+          namespace: ${{ env.NAMESPACE }}
